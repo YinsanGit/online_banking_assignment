@@ -1,0 +1,26 @@
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+server:
+  port: 8081
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/simple_bank_db
+    username: postgres
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+security:
+  jwt:
+    secret: "change-me-to-a-32+ char secret key"
+    ttl-ms: 3600000
