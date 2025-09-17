@@ -32,7 +32,7 @@ public class User {
     private String lastName;
     private String phoneNumber;
     private LocalDateTime createDate;
-    // ... existing code ...
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -40,6 +40,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
-    // ... existing code ...
+
+
+
 }
 

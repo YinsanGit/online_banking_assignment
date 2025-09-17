@@ -1,25 +1,33 @@
 package com.finalBanking.demo.Security;
 
+import com.finalBanking.demo.Jwt.JwtAuthenticationFilter;
 import com.finalBanking.demo.Jwt.JwtTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Configuration
+@EnableWebSecurity
 @Service
 public class SecurityConfig {
 
@@ -38,12 +46,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/register").hasAuthority("CREATE_USER")
+//                        .requestMatchers( "api/admin/roles/**").hasRole("ADMIN")
+                        .requestMatchers("/roles", "/permissions").permitAll()
+                        .requestMatchers("/api/admin/permissions").hasRole("ADMIN")
+                        //.requestMatchers(HttpMethod.POST, "/accounts").hasAuthority("CREATE_ACCOUNT")
+                        .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
+                        //.requestMatchers(HttpMethod.DELETE,"/accounts/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/transfer").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jsonAuthEntryPoint())
                         .accessDeniedHandler(jsonAccessDeniedHandler())
                 )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, userDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(Customizer.withDefaults())
                 .authenticationProvider(daoAuthenticationProvider());
         return http.build();
@@ -61,7 +79,15 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
+    @Bean
+    public AuthenticationSuccessHandler jsonAuthSuccessHandler() {
+        return (request, response, authentication) -> {
+            response.setStatus(200);
+            response.setContentType("application/json");
+            String body = String.format("{\"message\":\"Success\",\"user\":\"%s\"}", escape(authentication.getName()));
+            response.getWriter().write(body);
+        };
+    }
     // Build AuthenticationManager from the configured providers
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -69,10 +95,20 @@ public class SecurityConfig {
     }
 
     private AuthenticationEntryPoint jsonAuthEntryPoint() {
-        return (request, response, authException) -> writeJson(response, 401, "Unauthorized", authException.getMessage());
+        return (request,
+                response,
+                authException)
+                -> writeJson(response,
+                401,
+                "Unauthorized"
+                , authException.getMessage());
     }
     private AccessDeniedHandler jsonAccessDeniedHandler() {
-        return (request, response, accessDeniedException) -> writeJson(response, 403, "Forbidden", accessDeniedException.getMessage());
+        return (request,
+                response,
+                accessDeniedException)
+                -> writeJson(response,
+                403, "Forbidden", accessDeniedException.getMessage());
     }
 
     private void writeJson(jakarta.servlet.http.HttpServletResponse response, int status, String error, String details) throws IOException, IOException {

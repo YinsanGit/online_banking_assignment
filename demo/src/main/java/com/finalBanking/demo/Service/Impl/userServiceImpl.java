@@ -1,11 +1,16 @@
-package com.finalBanking.demo.Service;
+package com.finalBanking.demo.Service.Impl;
 
 import com.finalBanking.demo.Dto.userRegister;
 import com.finalBanking.demo.Entity.User;
 import com.finalBanking.demo.Repository.userRepository;
+import com.finalBanking.demo.Service.userService;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Transactional
 @Service
@@ -38,4 +43,12 @@ public class userServiceImpl implements userService {
     public boolean existsByEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
+
+    @Override
+    public Page<User> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Create a PageRequest object for pagination
+        return userRepository.findAll(pageable);
+    }
+
+
 }

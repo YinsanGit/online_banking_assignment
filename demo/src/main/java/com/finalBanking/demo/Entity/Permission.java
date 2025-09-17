@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "permissions")
 @Getter
@@ -15,5 +18,11 @@ public class Permission {
 
     @Column(unique = true, nullable = false, length = 100)
     private String name;
+
+    private String description;
+    private String category;
+
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    private Set<Role> roles = new HashSet<>();
 }
 
