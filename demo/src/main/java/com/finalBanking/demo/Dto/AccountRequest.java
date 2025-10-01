@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 
 public record AccountRequest(
         @NotBlank

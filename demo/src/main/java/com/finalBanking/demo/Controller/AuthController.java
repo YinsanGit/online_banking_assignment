@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +44,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
 
-    @PreAuthorize("hasAuthority('CREATE_USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody userRegister req) {
         if (userService.existsByEmail(req.getEmail())) {
@@ -65,12 +66,7 @@ public class AuthController {
         try {
             String token = authenticationService.authenticate(request.email(), request.password());
             Date expiresAt = jwtTokenService.extractExpiration(token);
-//            return ResponseEntity.ok(Map.of(
-//                    "message", "Login successful",
-//                    "token", token,
-//                    "expiresAt", expiresAt.getTime(),
-//                    "user", request.email()
-//
+
             return ResponseEntity.ok(ApiResponseUtil.successResponse(
                     Map.of(
                             "message", "Login successful",
@@ -81,13 +77,32 @@ public class AuthController {
             ));
 
         } catch (BadCredentialsException e) {
-            throw new CustomErrorException("Main error message", HttpStatus.UNAUTHORIZED, "Detailed error message");
+            // Invalid email OR password
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponseUtil.errorResponse(
+                            "Invalid email or password",
+                            Map.of("email", request.email())
+                    ));
         } catch (DisabledException e) {
-            throw new CustomErrorException("Main error message", HttpStatus.FORBIDDEN, "User account is disabled");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponseUtil.errorResponse(
+                            "User account is disabled",
+                            Map.of("email", request.email())
+                    ));
         } catch (Exception e) {
-            throw new CustomErrorException("Main error message", HttpStatus.UNAUTHORIZED, "Authentication failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponseUtil.errorResponse(
+                            "Authentication failed",
+                            Map.of("error", e.getMessage())
+                    ));
         }
+    }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    private ResponseEntity<User> deleteUser(@PathVariable Long id) {
+        userService.delete(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/users")

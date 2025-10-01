@@ -23,6 +23,9 @@ security:
   jwt:
     secret: "change-me-to-a-32+ char secret key"
     ttl-ms: 3600000
+    issuer: "Final_Spring_Assignment"
+    access-ttl-minutes: 15
+    refresh-ttl-days: 7
 
 app:
   transfer:

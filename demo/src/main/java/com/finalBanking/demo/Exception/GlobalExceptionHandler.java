@@ -37,4 +37,21 @@ public class GlobalExceptionHandler {
                         "message", ex.getMessage()
                 ));
     }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<ApiResponseEntityDto> handleAccountNotFound(AccountNotFoundException ex) {
+        ApiResponseEntityDto errorResponse = ApiResponseUtil.createApiResponseEntityDto(
+                "404",
+                404,
+                "Account Not Found",
+                ex.getMessage(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+
+
+
+
 }

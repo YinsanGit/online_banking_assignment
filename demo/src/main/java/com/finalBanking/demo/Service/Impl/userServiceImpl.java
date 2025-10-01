@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Transactional
 @Service
 public class userServiceImpl implements userService {
@@ -34,8 +37,10 @@ public class userServiceImpl implements userService {
         user.setUsername(userRegister.getUsername());
         user.setEmail(userRegister.getEmail());
         user.setPhoneNumber(userRegister.getPhoneNumber());
+        user.setFirstName(userRegister.getUsername());
+        user.setLastName(userRegister.getUsername());
         user.setPassword(passwordEncoder.encode(userRegister.getPassword()));
-
+        user.setCreateDate(LocalDateTime.now());
         return userRepository.save(user);
     }
 
@@ -46,8 +51,13 @@ public class userServiceImpl implements userService {
 
     @Override
     public Page<User> getAllUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);  // Create a PageRequest object for pagination
+        Pageable pageable = PageRequest.of(page, size);
         return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public void delete(Long id) {
+        userRepository.deleteById(id);
     }
 
 

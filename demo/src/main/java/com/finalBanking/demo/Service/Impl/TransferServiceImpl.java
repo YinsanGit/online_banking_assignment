@@ -31,7 +31,7 @@ public class TransferServiceImpl implements TransferService {
     private BigDecimal transferLimit;
 
     @Override
-    @Transactional  // Ensures atomicity of the transaction
+    @Transactional
     public Transaction transfer(String fromAcc, String toAcc, BigDecimal amount, String description, String principal) {
         User processor = userRepository.findByUsername(principal)
                 .or(() -> userRepository.findByEmail(principal))

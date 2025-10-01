@@ -26,7 +26,7 @@ public class TransferController {
     private final TransferService transferService;
 
     @PostMapping(consumes = "application/json")
-//    @PreAuthorize("hasAuthority('TRANSFER_FUNDS')")
+    @PreAuthorize("hasAuthority('TRANSFER')")
     public ResponseEntity<ApiResponseEntityDto> transfer(@Valid @RequestBody TransferRequest req, Authentication auth) {
         // Calling the transferService to perform the actual transfer logic
         Transaction tx = transferService.transfer(
@@ -36,7 +36,7 @@ public class TransferController {
         // Mapping the resulting Transaction to TransferResponse DTO
         TransferResponse transferResponse = TransactionMapper.toDto(tx);
 
-        // Create the API response using the successResponse methodz
+        // Create the API response using the successResponse method
         ApiResponseEntityDto apiResponse = ApiResponseUtil.successResponse(transferResponse);
 
         // Returning the ApiResponseEntityDto in the response body

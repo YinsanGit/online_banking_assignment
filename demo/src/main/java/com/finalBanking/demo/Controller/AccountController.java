@@ -80,28 +80,40 @@ public class AccountController {
         try {
             AccountResponse updatedAccount = accountService.updateAccount(id, request, updatedByUser);
             if (updatedAccount != null) {
+                log.info("Account with ID {} has been updated successfully", id);
                 return ResponseEntity.ok(ApiResponseUtil.successResponse(updatedAccount));
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                ApiResponseEntityDto errorBody = ApiResponseUtil.createApiResponseEntityDto(
+                        "404",
+                        404,
+                        "Not Found",
+                        "Account with ID " + id + " not found",
+                        null
+                );
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error updating account with ID {}: {}", id, e.getMessage(), e);
+            ApiResponseEntityDto errorBody = ApiResponseUtil.createApiResponseEntityDto(
+                    "500",
+                    500,
+                    "Internal Server Error",
+                    e.getMessage(),
+                    null
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
         }
     }
 
     // Delete Account
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
-        try {
-            boolean isDeleted = accountService.deleteAccount(id);
-            if (isDeleted) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<ApiResponseEntityDto> deleteAccount(@PathVariable Long id) {
+        accountService.deleteAccount(id);
+        return ResponseEntity.ok(
+                ApiResponseUtil.deleteSuccessResponse("Account with ID " + id + " has been deleted successfully")
+        );
     }
+
+
 }
 

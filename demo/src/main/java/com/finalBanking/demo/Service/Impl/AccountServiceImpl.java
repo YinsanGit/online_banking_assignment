@@ -62,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponse getAccountById(Long id) {
         Optional<Account> account = accountRepository.findById(id);
         if (account.isPresent()) {
-            Account a = account.get();
+                Account a = account.get();
             return new AccountResponse(a.getId(), a.getAccountHolderName(), a.getAccountHolderEmail(),
                     a.getAccountHolderPhone(), a.getNationalId(), a.getAccountNumber(), a.getAccountType(),
                     a.getBalance(), a.getIsActive(), a.getCreatedAt());
@@ -92,6 +92,7 @@ public class AccountServiceImpl implements AccountService {
             account.setNationalId(request.nationalId());
             account.setAccountType(request.accountType());
 
+
             account = accountRepository.save(account);
 
             return new AccountResponse(account.getId(), account.getAccountHolderName(), account.getAccountHolderEmail(),
@@ -99,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
                     account.getAccountType(), account.getBalance(), account.getIsActive(),
                     account.getCreatedAt());
         }
-        return null; // Return null to be handled by the controller
+        return null;
     }
 
     @Override

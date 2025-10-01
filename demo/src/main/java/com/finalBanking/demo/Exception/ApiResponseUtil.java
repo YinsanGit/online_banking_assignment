@@ -1,8 +1,5 @@
 package com.finalBanking.demo.Exception;
 
-import org.springframework.http.ResponseEntity;
-
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -28,6 +25,24 @@ public class ApiResponseUtil {
                         "Success",
                         "Success",
                         object);
+    }
+
+    public static Map<String, Object> errorResponse(String message, Object details) {
+        return Map.of(
+                "success", false,
+                "message", message,
+                "details", details
+        );
+    }
+
+    public static ApiResponseEntityDto deleteSuccessResponse(String message) {
+        return ApiResponseUtil
+                .createApiResponseEntityDto(
+                        "200",
+                        200,
+                        "Deleted Successfully",
+                        message,
+                        null);
     }
 
 

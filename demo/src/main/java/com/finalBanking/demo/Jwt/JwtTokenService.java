@@ -18,10 +18,10 @@ public class JwtTokenService {
 
     private final SecretKey key;
     private final long jwtTtlMillis;
-
     public JwtTokenService(
             @Value("${security.jwt.secret}") String secret,
             @Value("${security.jwt.ttl-ms:3600000}") long jwtTtlMillis
+
     ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.jwtTtlMillis = jwtTtlMillis;
@@ -34,9 +34,10 @@ public class JwtTokenService {
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
                 .expiration(exp)
-                .signWith(key)               // HS256 inferred from key size
+                .signWith(key)       // HS256 inferred from key size
                 .compact();
     }
+
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);

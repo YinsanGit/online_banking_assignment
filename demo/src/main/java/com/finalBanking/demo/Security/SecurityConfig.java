@@ -44,17 +44,18 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/register").hasAuthority("CREATE_USER")
-//                        .requestMatchers( "api/admin/roles/**").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
+                                .requestMatchers("/api/auth/delete/{id}").hasRole("ADMIN")
                         .requestMatchers("/roles", "/permissions").permitAll()
-                        .requestMatchers("/api/admin/permissions").hasRole("ADMIN")
-                        //.requestMatchers(HttpMethod.POST, "/accounts").hasAuthority("CREATE_ACCOUNT")
-                        .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
-                        //.requestMatchers(HttpMethod.DELETE,"/accounts/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/transfer").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/roles/**", "/api/permissions/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/accounts").hasAuthority("CREATE_ACCOUNT")
+                                .requestMatchers(HttpMethod.GET, "/accounts/getAll").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/accounts/{id}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/accounts/{id}").hasRole("ADMIN")
+
+                        .requestMatchers("api/users/{id}/roles").hasRole("ADMIN")
+                        .requestMatchers("/api/transfer").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

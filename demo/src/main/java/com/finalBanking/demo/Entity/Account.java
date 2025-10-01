@@ -40,6 +40,7 @@ public class Account {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    //runs when you **create** a new entity, not when you **update** it.
     @PrePersist
     public void prePersist() {
         if (this.balance == null) {
@@ -52,5 +53,16 @@ public class Account {
             this.createdAt = LocalDateTime.now();
         }
     }
+//
+//    @PreUpdate
+//    public void preUpdate() {
+//        if (this.balance == null) {
+//            this.balance = BigDecimal.ZERO;
+//        }
+//        if (this.isActive == null) {
+//            this.isActive = true;
+//        }
+//    }
+
 
 }

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record TransferResponse(
+
         Long transactionId,
         String fromAccountNumber,
         String toAccountNumber,
@@ -14,5 +15,6 @@ public record TransferResponse(
         String processedBy,
         LocalDateTime timestamp,
         String message
+
 ) {
 }
