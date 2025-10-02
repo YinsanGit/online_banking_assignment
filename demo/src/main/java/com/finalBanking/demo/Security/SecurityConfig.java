@@ -53,8 +53,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/accounts/getAll").permitAll()
 //                        .requestMatchers(HttpMethod.GET, "/accounts/{id}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/accounts/{id}").hasRole("ADMIN")
-
-                        .requestMatchers("api/users/{id}/roles").hasRole("ADMIN")
+                        .requestMatchers("api/users/{id}/roles").permitAll()
                         .requestMatchers("/api/transfer").permitAll()
                         .anyRequest().authenticated()
                 )

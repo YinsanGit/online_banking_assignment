@@ -24,7 +24,6 @@ public class userServiceImpl implements userService {
 
     public userServiceImpl(userRepository userRepository) {
         this.userRepository = userRepository;
-
     }
 
     @Override
