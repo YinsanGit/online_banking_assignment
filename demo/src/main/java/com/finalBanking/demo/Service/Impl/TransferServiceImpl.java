@@ -30,6 +30,14 @@ public class TransferServiceImpl implements TransferService {
     @Value("${app.transfer.limit:1000000.00}")
     private BigDecimal transferLimit;
 
+    @Value("${app.withdraw.limit:500000.00}")
+    private BigDecimal withdrawLimit;
+
+    @Value("${app.deposit.limit:100000.00}")
+    private BigDecimal depositLimit;
+
+
+
     @Override
     @Transactional
     public Transaction transfer(String fromAcc, String toAcc, BigDecimal amount, String description, String principal) {
@@ -86,4 +94,101 @@ public class TransferServiceImpl implements TransferService {
             throw e;
         }
     }
+
+    @Override
+    @Transactional
+    public Transaction withdraw(String accountNumber, BigDecimal amount, String description, String principal) {
+        User processor = userRepository.findByUsername(principal)
+                .or(() -> userRepository.findByEmail(principal))
+                .orElseThrow(() -> new IllegalStateException("User not found: " + principal));
+
+        // Create and save the transaction as PENDING initially
+        Transaction tx = transactionRepository.save(Transaction.builder()
+                .fromAccountNumber(accountNumber)
+                .toAccountNumber("CASH") // Withdraw is to cash
+                .amount(amount)
+                .type(TransactionType.WITHDRAWAL)
+                .description(description)
+                .processedBy(processor)
+                .status(TransactionStatus.PENDING)
+                .build());
+
+        try {
+            if (amount == null || amount.signum() <= 0) {
+                throw new IllegalArgumentException("Amount must be positive");
+            }
+            if (amount.compareTo(withdrawLimit) > 0) {
+                throw new LimitExceededException(amount, withdrawLimit);
+            }
+
+            Account account = accountRepository.findByAccountNumberForUpdate(accountNumber)
+                    .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+
+            if (Boolean.FALSE.equals(account.getIsActive())) {
+                throw new IllegalArgumentException("Account is inactive");
+            }
+            if (account.getBalance().compareTo(amount) < 0) {
+                throw new InsufficientFundsException(accountNumber, account.getBalance(), amount);
+            }
+
+            account.setBalance(account.getBalance().subtract(amount));
+            accountRepository.save(account);
+
+            tx.setStatus(TransactionStatus.COMPLETED);
+            return transactionRepository.save(tx);
+
+        } catch (RuntimeException e) {
+            tx.setStatus(TransactionStatus.FAILED);
+            transactionRepository.save(tx);
+            throw e;
+        }
+
+}
+
+    @Override
+    @Transactional
+    public Transaction deposit(String accountNumber, BigDecimal amount, String description, String principal) {
+        User processor = userRepository.findByUsername(principal)
+                .or(() -> userRepository.findByEmail(principal))
+                .orElseThrow(() -> new IllegalStateException("User not found: " + principal));
+
+        // Create and save the transaction as PENDING initially
+        Transaction tx = transactionRepository.save(Transaction.builder()
+                .fromAccountNumber("CASH") // Deposit is from cash
+                .toAccountNumber(accountNumber)
+                .amount(amount)
+                .type(TransactionType.DEPOSIT)
+                .description(description)
+                .processedBy(processor)
+                .status(TransactionStatus.PENDING)
+                .build());
+
+        try {
+            if (amount == null || amount.signum() <= 0) {
+                throw new IllegalArgumentException("Amount mus  t be positive");
+            }
+            if (amount.compareTo(depositLimit) > 0) {
+                throw new LimitExceededException(amount, depositLimit);
+            }
+
+            Account account = accountRepository.findByAccountNumberForUpdate(accountNumber)
+                    .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+
+            if (Boolean.FALSE.equals(account.getIsActive())) {
+                throw new IllegalArgumentException("Account is inactive");
+            }
+
+            account.setBalance(account.getBalance().add(amount));
+            accountRepository.save(account);
+
+            tx.setStatus(TransactionStatus.COMPLETED);
+            return transactionRepository.save(tx);
+
+        } catch (RuntimeException e) {
+            tx.setStatus(TransactionStatus.FAILED);
+            transactionRepository.save(tx);
+            throw e;
+        }
+    }
+
 }

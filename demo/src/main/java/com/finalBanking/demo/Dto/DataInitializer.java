@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -219,7 +220,7 @@ public class DataInitializer {
         admin.setLastName("Administrator");
         admin.setPhoneNumber("1234567890");
         admin.setCreateDate(LocalDateTime.now());
-        admin.setRoles(new HashSet<>(Arrays.asList(adminRole)));
+        admin.setRoles(new HashSet<>(Collections.singletonList(adminRole)));
 
         // Create Manager User
         User manager = new User();
@@ -230,7 +231,7 @@ public class DataInitializer {
         manager.setLastName("Manager");
         manager.setPhoneNumber("1234567891");
         manager.setCreateDate(LocalDateTime.now());
-        manager.setRoles(new HashSet<>(Arrays.asList(managerRole)));
+        manager.setRoles(new HashSet<>(Collections.singletonList(managerRole)));
 
         // Create Regular User
         User regularUser = new User();
@@ -241,7 +242,7 @@ public class DataInitializer {
         regularUser.setLastName("User");
         regularUser.setPhoneNumber("1234567892");
         regularUser.setCreateDate(LocalDateTime.now());
-        regularUser.setRoles(new HashSet<>(Arrays.asList(userRole)));
+        regularUser.setRoles(new HashSet<>(Collections.singletonList(userRole)));
 
         return Arrays.asList(admin, manager, regularUser);
     }

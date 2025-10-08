@@ -10,16 +10,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
 @RestController
+@PreAuthorize("hasRole('ROLE_MANAGER')")
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
+
 
     @PostMapping
     public ResponseEntity<ApiResponseEntityDto> createAccount(
@@ -44,7 +47,8 @@ public class AccountController {
     }
 
 
-    // Get Account by ID
+
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseEntityDto> getAccountById(@PathVariable Long id) {
         try {
@@ -59,7 +63,8 @@ public class AccountController {
         }
     }
 
-    // Get all Accounts
+
+
     @GetMapping("/getAll")
     public ResponseEntity<List<AccountResponse>> getAllAccounts() {
         try {
@@ -70,7 +75,7 @@ public class AccountController {
         }
     }
 
-    // Update Account
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponseEntityDto> updateAccount(
             @PathVariable Long id,
@@ -105,7 +110,7 @@ public class AccountController {
         }
     }
 
-    // Delete Account
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponseEntityDto> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);

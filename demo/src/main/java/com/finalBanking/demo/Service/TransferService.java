@@ -8,4 +8,7 @@ import java.math.BigDecimal;
 @Service
 public interface TransferService {
     Transaction transfer(String fromAcc, String toAcc, BigDecimal amount, String description, String principal);
+    Transaction withdraw(String accountNumber, BigDecimal amount, String description, String principal);
+    Transaction deposit(String accountNumber, BigDecimal amount, String description, String principal);
+
 }

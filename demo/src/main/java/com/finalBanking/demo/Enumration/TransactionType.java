@@ -1,5 +1,6 @@
 package com.finalBanking.demo.Enumration;
 
 public enum TransactionType {
-    TRANSFER
+    TRANSFER,WITHDRAWAL,DEPOSIT
+
 }
