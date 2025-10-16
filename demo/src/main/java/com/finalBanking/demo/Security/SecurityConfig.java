@@ -43,14 +43,17 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())        // <— wire in CORS
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/swagger-ui").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/register").hasRole("ADMIN")
                         .requestMatchers("/api/auth/delete/{id}").hasRole("ADMIN")
                         .requestMatchers("/roles", "/permissions").permitAll()
                         .requestMatchers("/api/roles/**", "/api/permissions/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers( "/accounts").hasAuthority("CREATE_ACCOUNT")
-                        .requestMatchers( "/accounts/getAll").hasRole("MANAGER")
+                        .requestMatchers( "/accounts/getAll").permitAll()
                         .requestMatchers( "/accounts/{id}").hasRole("MANAGER")
                         .requestMatchers("api/users/{id}/roles").permitAll()
                         .requestMatchers("/api/transfer").permitAll()
